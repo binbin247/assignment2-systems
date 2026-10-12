@@ -8,7 +8,6 @@ import warnings
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
-from torchtune.modules import FeedForward
 
 logger = logging.getLogger(__name__)
 
@@ -204,6 +203,19 @@ class BasicsTransformerLM(nn.Module):
         return model
 
 
+class SwiGLU(nn.Module):
+    """Gated feed-forward network mapping (..., d_model) to (..., d_model)."""
+
+    def __init__(self, d_model: int, d_ff: int):
+        super().__init__()
+        self.gate_proj = nn.Linear(d_model, d_ff, bias=False)
+        self.down_proj = nn.Linear(d_ff, d_model, bias=False)
+        self.up_proj = nn.Linear(d_model, d_ff, bias=False)
+
+    def forward(self, x: Tensor) -> Tensor:
+        return self.down_proj(F.silu(self.gate_proj(x)) * self.up_proj(x))
+
+
 class TransformerBlock(nn.Module):
     """A single Transformer layer.
 
@@ -236,12 +248,7 @@ class TransformerBlock(nn.Module):
             num_heads=num_heads,
             positional_encoder=positional_encoder,
         )
-        self.ffn = FeedForward(
-            gate_proj=nn.Linear(d_model, d_ff, bias=False),
-            down_proj=nn.Linear(d_ff, d_model, bias=False),
-            up_proj=nn.Linear(d_model, d_ff, bias=False),
-            activation=nn.SiLU(),
-        )
+        self.ffn = SwiGLU(d_model=d_model, d_ff=d_ff)
         self.ln1 = nn.RMSNorm(d_model, eps=1e-5)
         self.ln2 = nn.RMSNorm(d_model, eps=1e-5)
 
