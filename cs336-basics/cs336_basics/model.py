@@ -2,109 +2,15 @@ from __future__ import annotations
 
 import json
 import logging
-import math
 import os
 import warnings
 
-import einx
 import torch
-import torch.nn as nn
-from einops import einsum, rearrange
-from jaxtyping import Bool, Float, Int
-from torch import Tensor
-
-from cs336_basics.nn_utils import softmax
+import torch.nn.functional as F
+from torch import Tensor, nn
+from torchtune.modules import FeedForward
 
 logger = logging.getLogger(__name__)
-
-
-class Linear(nn.Module):
-    def __init__(self, d_in: int, d_out: int):
-        """A linear layer initialized with truncated normal fan-in fan-out.
-
-        Args:
-            d_in: int
-                The number of input features.
-            d_out: int
-                The number of output features.
-        """
-
-        super().__init__()
-        std = math.sqrt(2 / (d_in + d_out))
-        self.weight: Float[Tensor, " d_out d_in"] = nn.Parameter(
-            nn.init.trunc_normal_(torch.empty(d_out, d_in), std=std, a=-3 * std, b=3 * std), requires_grad=True
-        )
-
-    def forward(self, x: Float[Tensor, " ... d_in"]) -> Float[Tensor, " ... d_out"]:
-        return einsum(x, self.weight, "... d_in, d_out d_in -> ... d_out")
-
-    def extra_repr(self):
-        return f"d_out={self.weight.shape[0]}, d_in={self.weight.shape[1]}"
-
-
-class Embedding(nn.Module):
-    def __init__(self, vocab_size: int, d_model: int):
-        super().__init__()
-        std = 1.0
-        self.weight = nn.Parameter(
-            nn.init.trunc_normal_(torch.empty(vocab_size, d_model), std=std, a=-3 * std, b=3 * std), requires_grad=True
-        )
-
-    def forward(self, token_ids: Int[Tensor, " ..."]) -> Float[Tensor, " ... d_model"]:
-        return self.weight[token_ids, :]
-
-    def extra_repr(self):
-        return f"vocab_size={self.weight.shape[0]}, d={self.weight.shape[1]}"
-
-
-class RMSNorm(nn.Module):
-    """
-    This module implements root mean square layer normalization, as
-    described in Eq. 4 of https://arxiv.org/abs/1910.07467
-
-    Args:
-        hidden_size: int
-            Dimensionality of the input to normalize.
-        eps: float, default is 1e-5
-            A value added to the denominator for numerical stability.
-
-    Returns:
-        FloatTensor of same shape as input.
-    """
-
-    def __init__(
-        self,
-        hidden_size: int,
-        eps: float = 1e-5,
-        device=None,
-    ):
-        super().__init__()
-        self.weight = nn.Parameter(torch.ones(hidden_size, device=device))
-        self.eps = eps
-
-    def forward(self, x):
-        """
-        Args:
-            x: FloatTensor of shape `(batch_size, *)`.
-                The input to apply root mean square layer normalization on.
-
-        Returns:
-            FloatTensor of same shape as input
-        """
-        # NOTE: in practice, many implementations will
-        # manually upcast the input to fp32 here to prevent overflow when you
-        # square the input.
-        # https://github.com/pytorch/pytorch/issues/66707
-        in_dtype = x.dtype
-
-        x = x.to(torch.float32)
-        rms = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-        x = x * rms
-
-        return (self.weight * x).to(in_dtype)
-
-    def extra_repr(self):
-        return f"hidden_size={self.weight.shape[0]}, eps={self.eps}"
 
 
 class RotaryEmbedding(nn.Module):
@@ -113,32 +19,25 @@ class RotaryEmbedding(nn.Module):
         self.register_buffer(
             "_freq_cis_cache", RotaryEmbedding._init_cache(context_length, dim, theta), persistent=False
         )
-        self._freq_cis_cache: Float[Tensor, "2 context_length half_dim"]
 
     @staticmethod
-    def _init_cache(context_length: int, dim: int, theta: float) -> Float[Tensor, " 2 context_length half_dim"]:
+    def _init_cache(context_length: int, dim: int, theta: float) -> Tensor:
         assert dim % 2 == 0
 
         d = torch.arange(0, dim, 2) / dim
         freqs = torch.tensor(theta) ** -d
         t = torch.arange(context_length)
 
-        freqs = einsum(t, freqs, "t, f -> t f")
+        freqs = t.unsqueeze(-1) * freqs.unsqueeze(0)
 
         cos, sin = torch.cos(freqs), torch.sin(freqs)
         return torch.stack((cos, sin))
 
-    def forward(
-        self, x: Float[Tensor, " ... seq d"], pos_ids: Int[Tensor, " ... seq"] | None
-    ) -> Float[Tensor, " ... seq d"]:
-        x1, x2 = rearrange(x, "... (half_d xy) -> xy ... half_d", xy=2).unbind(0)
+    def forward(self, x: Tensor, pos_ids: Tensor | None) -> Tensor:
+        x1, x2 = x[..., 0::2], x[..., 1::2]
 
-        # Standard
-        # cos, sin = self._freq_cis_cache[:, pos_ids, :]
-
-        # einx
         if pos_ids is not None:
-            cos, sin = einx.get_at("cos_sin [pos] half_dim, ... -> cos_sin ... half_dim", self._freq_cis_cache, pos_ids)
+            cos, sin = self._freq_cis_cache[:, pos_ids, :].unbind(0)
         else:
             seq_len = x.size(-2)
             cos, sin = self._freq_cis_cache[:, :seq_len, :].unbind(0)
@@ -146,12 +45,10 @@ class RotaryEmbedding(nn.Module):
         # 2D rotation matrix applied to pairs in x
         x1_rot = cos * x1 - sin * x2
         x2_rot = sin * x1 + cos * x2
-        # result = einx.id("... x_half, ... x_half -> ... (x_half (1 + 1))", x1_rot, x2_rot).contiguous()
-        result = torch.concat((x1_rot, x2_rot), dim=-1)
-        return result
+        return torch.cat((x1_rot, x2_rot), dim=-1)
 
     def extra_repr(self):
-        return f"context_length={self._freq_cis_cache.shape[0]}, dim/2={self._freq_cis_cache.shape[1]}"
+        return f"context_length={self._freq_cis_cache.shape[1]}, dim/2={self._freq_cis_cache.shape[2]}"
 
 
 class BasicsTransformerLM(nn.Module):
@@ -194,7 +91,7 @@ class BasicsTransformerLM(nn.Module):
         super().__init__()
         self.context_length = context_length
         self.d_model = d_model
-        self.token_embeddings = Embedding(vocab_size, d_model)
+        self.token_embeddings = nn.Embedding(vocab_size, d_model)
         d_head = d_model // num_heads
         self.positional_encoder = (
             RotaryEmbedding(context_length, d_head, rope_theta) if rope_theta is not None else None
@@ -211,25 +108,15 @@ class BasicsTransformerLM(nn.Module):
                 for _ in range(num_layers)
             ]
         )
-        self.ln_final = RMSNorm(d_model)
-        self.lm_head = Linear(d_model, vocab_size)
-        # Tie the weights, since the paper mentions that "we share the same weight
-        # matrix between the two embedding layers and the pre-softmax linear transformation"
-        # self.lm_head.weight = self.token_embeddings.weight
-        # report number of parameters
-        logger.info(f"number of non-embedding parameters: {self.get_num_params() / 1e6:.2f}M")
+        self.ln_final = nn.RMSNorm(d_model, eps=1e-5)
+        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
+        logger.info(f"number of parameters: {self.get_num_params() / 1e6:.2f}M")
 
     def get_num_params(self) -> int:
-        """
-        Return the number of parameters in the model.
-        For non-embedding count (default), the position embeddings get subtracted.
-        The token embeddings would too, except due to the parameter sharing these
-        params are actually used as weights in the final layer, so we include them.
-        """
-        n_params = sum(p.numel() for p in self.parameters())
-        return n_params
+        """Return the total number of model parameters."""
+        return sum(p.numel() for p in self.parameters())
 
-    def forward(self, x: Int[Tensor, " ... sequence_length"]) -> Float[Tensor, " ... sequence_length vocab_size"]:
+    def forward(self, x: Tensor) -> Tensor:
         """
         Args:
             x: Input IDs for language modeling.
@@ -238,24 +125,10 @@ class BasicsTransformerLM(nn.Module):
             (batch size, sequence_length, vocab_size) with the predicted unnormalized next-word
             distribution for each token.
         """
-        _, sequence_length = x.size()
-        # (batch size, sequence_length, d_model)
-        # NOTE: paper mentions "In the embedding layers, we multiply those
-        # weights by sqrt(d_model)", but we aren't doing that here.
-        embedded_tokens = self.token_embeddings(x)
-
-        # (batch size, sequence_length, d_model)
-        # x = self.positional_encoder(embedded_tokens, positions)
-        x = embedded_tokens
-
+        x = self.token_embeddings(x)
         for layer in self.layers:
-            # (batch size, sequence_length, d_model)
             x = layer(x)
-        # (batch size, sequence_length, d_model)
-        x = self.ln_final(x)
-        # (batch size, sequence_length, vocab_size)
-        logits = self.lm_head(x)
-        return logits
+        return self.lm_head(self.ln_final(x))
 
     @torch.no_grad()
     def generate(
@@ -287,9 +160,9 @@ class BasicsTransformerLM(nn.Module):
         for _ in range(max_new_tokens):
             # Take the last `context_length` tokens if the input is
             # beyond the model's context length
-            x = x[:, -self.context_length :] if x.size(1) > self.context_length else x
+            context = x[:, -self.context_length :]
             # Get the logits from the model
-            logits = self.forward(x)
+            logits = self.forward(context)
             # Take the logits for the next token
             next_token_logits = logits[:, -1]
             # apply temperature scaling
@@ -301,10 +174,10 @@ class BasicsTransformerLM(nn.Module):
                     min(top_k, temperature_scaled_next_token_logits.size(-1)),
                 )
                 # Get the score of the kth item that we kept---items with lower scores should be masked.
-                threshold = topk_values[:, -1]
+                threshold = topk_values[:, -1:]
                 topk_mask = temperature_scaled_next_token_logits < threshold
-                temperature_scaled_next_token_logits.masked_fill(topk_mask, float("-inf"))
-            next_token_probabilities = softmax(temperature_scaled_next_token_logits, dim=-1)
+                temperature_scaled_next_token_logits.masked_fill_(topk_mask, float("-inf"))
+            next_token_probabilities = torch.softmax(temperature_scaled_next_token_logits, dim=-1)
             next_token_id = torch.multinomial(next_token_probabilities, 1)
             # End generation if we see the EOS token ID
             if eos_token_id is not None and next_token_id.item() == eos_token_id:
@@ -363,9 +236,14 @@ class TransformerBlock(nn.Module):
             num_heads=num_heads,
             positional_encoder=positional_encoder,
         )
-        self.ffn = SwiGLU(d_model=d_model, d_ff=d_ff)
-        self.ln1 = RMSNorm(d_model)
-        self.ln2 = RMSNorm(d_model)
+        self.ffn = FeedForward(
+            gate_proj=nn.Linear(d_model, d_ff, bias=False),
+            down_proj=nn.Linear(d_ff, d_model, bias=False),
+            up_proj=nn.Linear(d_model, d_ff, bias=False),
+            activation=nn.SiLU(),
+        )
+        self.ln1 = nn.RMSNorm(d_model, eps=1e-5)
+        self.ln2 = nn.RMSNorm(d_model, eps=1e-5)
 
     def forward(self, x: torch.Tensor):
         """
@@ -376,62 +254,9 @@ class TransformerBlock(nn.Module):
         Returns:
             FloatTensor of shape `(batch_size, sequence_length, d_model)`.
         """
-        # NOTE: this is a pre-norm Transformer, and differs from the original
-        # description in the paper.
-        # Apply the multi-head self-attention sublayer
-        x_attn = self.attn(self.ln1(x))
-        attn_sublayer_output = x + x_attn
-
-        # Apply the feed-forward sublayer
-        x_ffn = self.ffn(self.ln2(attn_sublayer_output))
-        ffn_sublayer_output = attn_sublayer_output + x_ffn
-        return ffn_sublayer_output
-
-
-class SwiGLU(nn.Module):
-    def __init__(self, d_model: int, d_ff: int):
-        super().__init__()
-        self.w1 = Linear(d_model, d_ff)
-        self.w2 = Linear(d_ff, d_model)
-        self.w3 = Linear(d_model, d_ff)
-
-    def forward(self, x):
-        return self.w2(silu(self.w1(x)) * self.w3(x))
-
-
-def scaled_dot_product_attention(
-    Q: Float[Tensor, " ... queries d_k"],
-    K: Float[Tensor, " ... keys    d_k"],
-    V: Float[Tensor, " ... keys    d_v"],
-    mask: Bool[Tensor, " ... queries keys"] | None = None,
-) -> Float[Tensor, " ... queries d_v"]:
-    """Scaled dot-product attention.
-
-    This function implements Eq. 1 of the Transformer paper.
-
-    Args:
-        Q: Tensor of queries, may have any number of leading dimensions.
-        K: Tensor of keys, sharing leading dimensions with Q.
-        V: Tensor of values, sharding leading dimensions with Q and K.
-        mask: An (optional) mask of shape (..., seq_len, seq_len).
-            Attention scores for positions with a mask value of `False` should
-            be masked out, i.e., not affect the softmaxed attention probabilities.
-
-    Returns:
-        torch.FloatTensor of shape (..., seq_len, value_dimension)
-        with the output of running your scaled dot product attention
-        implementation with the provided key, query, and value tensors.
-    """
-
-    d_k = K.shape[-1]
-    attention_scores = einsum(Q, K, "... query d_k, ... key d_k -> ... query key") / math.sqrt(d_k)
-
-    if mask is not None:
-        attention_scores = torch.where(mask, attention_scores, float("-inf"))
-
-    attention_weights = softmax(attention_scores, dim=-1)  # Softmax over the key dimension
-
-    return einsum(attention_weights, V, "... query key, ... key d_v ->  ... query d_v")
+        # Pre-norm attention and feed-forward sublayers with residual connections.
+        x = x + self.attn(self.ln1(x))
+        return x + self.ffn(self.ln2(x))
 
 
 class CausalMultiHeadSelfAttention(nn.Module):
@@ -466,67 +291,48 @@ class CausalMultiHeadSelfAttention(nn.Module):
         self.d_model = d_model
         self.num_heads = num_heads
 
-        self.d_k = d_model // num_heads
-        self.d_v = self.d_k
+        self.head_dim = d_model // num_heads
 
-        self.q_proj = Linear(self.d_model, self.num_heads * self.d_k)
-        self.k_proj = Linear(self.d_model, self.num_heads * self.d_k)
-        self.v_proj = Linear(self.d_model, self.num_heads * self.d_v)
+        self.q_proj = nn.Linear(d_model, d_model, bias=False)
+        self.k_proj = nn.Linear(d_model, d_model, bias=False)
+        self.v_proj = nn.Linear(d_model, d_model, bias=False)
 
-        self.output_proj = Linear(self.num_heads * self.d_v, self.d_model)
+        self.output_proj = nn.Linear(d_model, d_model, bias=False)
 
         self.positional_encoder: RotaryEmbedding | None = positional_encoder  # RoPE
 
-    def forward(
-        self, x: Float[Tensor, " ... seq d_k"], token_positions: Int[Tensor, " ... seq"] | None = None
-    ) -> Float[Tensor, " ... seq d_v"]:
+    def forward(self, x: Tensor, token_positions: Tensor | None = None) -> Tensor:
         """
         Args:
             x: The input to perform multi-headed self-attention on.
-            positional_ids: The positional indices along the sequence dimension of the input embeddings.
+            token_positions: The positional indices along the sequence dimension of the input embeddings.
 
         Returns:
             Self-attention outputs.
         """
-        *batch_dims, sequence_length, d_model = x.size()
-        assert d_model == self.d_model
+        assert x.size(-1) == self.d_model
 
         Q = self.q_proj(x)
         K = self.k_proj(x)
         V = self.v_proj(x)
 
         # Take apart each head from the embedding dimension of Q, K, V to shape (..., num_heads, seq_len, d_k).
-        Q, K, V = (
-            rearrange(X, "... seq (heads d) -> ... heads seq d", heads=self.num_heads)
-            for X in (Q, K, V)
-        )  # fmt: skip
+        Q, K, V = (X.unflatten(-1, (self.num_heads, self.head_dim)).transpose(-3, -2) for X in (Q, K, V))
 
         if self.positional_encoder is not None:  # RoPE is enabled
             if token_positions is not None:  # We got explicit position ids
-                # Duplicate token positions for each head
-                token_positions = rearrange(token_positions, "... seq -> ... 1 seq")
+                # Broadcast token positions across heads.
+                token_positions = token_positions.unsqueeze(-2)
 
             Q = self.positional_encoder(Q, token_positions)
             K = self.positional_encoder(K, token_positions)
 
-        # Construct causal mask
-        iota = torch.arange(sequence_length, device=x.device)
-        qi = rearrange(iota, "query -> query 1")
-        kj = rearrange(iota, "key   -> 1   key")
-        causal_mask = qi >= kj  # (query, key)
-        causal_mask = causal_mask.__getitem__((None,) * len(batch_dims) + (...,))  # Add appropriate leading dimensions
-
         # Shape: (..., num_heads, sequence_length, d_k)
-        attn_output = scaled_dot_product_attention(K=K, Q=Q, V=V, mask=causal_mask)
+        attn_output = F.scaled_dot_product_attention(Q, K, V, dropout_p=0.0, is_causal=True)
 
         # Concatenate the attention output from all heads.
         # (..., sequence_length, num_heads * d_v).
-        attn_output = rearrange(attn_output, "batch heads seq d_v -> batch seq (heads d_v)").contiguous()
+        attn_output = attn_output.transpose(-3, -2).flatten(-2).contiguous()
 
         # Apply the output projection
-        output = self.output_proj(attn_output)
-        return output
-
-
-def silu(x: torch.Tensor):
-    return x * torch.sigmoid(x)
+        return self.output_proj(attn_output)

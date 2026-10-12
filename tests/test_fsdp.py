@@ -6,7 +6,7 @@ import pytest
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
-import torch.nn as nn
+from torch import nn
 
 from .adapters import (
     fsdp_gather_full_params,
@@ -20,18 +20,16 @@ from .common import (
 
 
 class ToyFSDPModel(nn.Module):
-    """Simple model using cs336_basics Linear and Embedding for FSDP testing."""
+    """Simple model using PyTorch layers for FSDP testing."""
 
     def __init__(self, vocab_size=100, d_model=64, d_ff=128):
         super().__init__()
-        from cs336_basics.model import Embedding, Linear, RMSNorm
-
-        self.embedding = Embedding(vocab_size, d_model)
-        self.norm1 = RMSNorm(d_model)
-        self.linear1 = Linear(d_model, d_ff)
-        self.norm2 = RMSNorm(d_ff)
-        self.linear2 = Linear(d_ff, d_model)
-        self.lm_head = Linear(d_model, vocab_size)
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.norm1 = nn.RMSNorm(d_model, eps=1e-5)
+        self.linear1 = nn.Linear(d_model, d_ff, bias=False)
+        self.norm2 = nn.RMSNorm(d_ff, eps=1e-5)
+        self.linear2 = nn.Linear(d_ff, d_model, bias=False)
+        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
 
     def forward(self, x):
         x = self.embedding(x)
@@ -50,10 +48,13 @@ def _apply_mixed_precision_hooks(model, compute_dtype):
     behavior: cast Linear/Embedding weights to compute_dtype for
     forward/backward, keep master weights and optimizer updates in fp32.
     """
-    from cs336_basics.model import Embedding, Linear
-
     for mod in model.modules():
-        if not isinstance(mod, (Linear, Embedding)):
+        if isinstance(mod, nn.RMSNorm):
+            # Normalize in fp32 and return activations in compute_dtype.
+            mod.register_forward_pre_hook(lambda m, inp: (inp[0].float(),))
+            mod.register_forward_hook(lambda m, inp, out: out.to(compute_dtype))
+            continue
+        if not isinstance(mod, (nn.Linear, nn.Embedding)):
             continue
 
         # Forward: cast weight to compute_dtype, restore fp32 after
@@ -76,7 +77,7 @@ def _apply_mixed_precision_hooks(model, compute_dtype):
         mod.register_forward_hook(make_fwd_post())
 
         # Linear backward needs the weight in compute_dtype for grad_input
-        if isinstance(mod, Linear):
+        if isinstance(mod, nn.Linear):
 
             def make_bwd_pre(dt):
                 def hook(m, grad_output):
@@ -99,7 +100,7 @@ def _apply_mixed_precision_hooks(model, compute_dtype):
 
             return hook
 
-        mod.weight.register_post_accumulate_grad_hook(make_grad_hook(mod, isinstance(mod, Linear)))
+        mod.weight.register_post_accumulate_grad_hook(make_grad_hook(mod, isinstance(mod, nn.Linear)))
 
 
 @pytest.mark.filterwarnings("error")
@@ -201,8 +202,6 @@ def test_fsdp_gradient_sync(compute_dtype):
 
 
 def _test_fsdp_gradient_sync(rank: int, world_size: int, compute_dtype):
-    from cs336_basics.model import Embedding, Linear
-
     torch.use_deterministic_algorithms(True)
     device = _setup_process_group(rank=rank, world_size=world_size, backend="gloo")
     dist.barrier()
@@ -237,7 +236,7 @@ def _test_fsdp_gradient_sync(rank: int, world_size: int, compute_dtype):
             continue
         parts = name.rsplit(".", 1)
         mod = dict(fsdp_model.module.named_modules())[parts[0]] if len(parts) == 2 else fsdp_model.module
-        if isinstance(mod, (Linear, Embedding)):
+        if isinstance(mod, (nn.Linear, nn.Embedding)):
             continue
         gathered = [torch.zeros_like(param.grad) for _ in range(world_size)]
         dist.all_gather(gathered, param.grad)
