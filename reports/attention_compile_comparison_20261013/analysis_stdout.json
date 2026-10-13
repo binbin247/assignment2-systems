@@ -1,0 +1,590 @@
+{
+  "comparison": {
+    "projection_us": {
+      "eager": 297.0782475,
+      "compile": 157.3353775,
+      "speedup": 1.8881846678125522,
+      "reduction_pct": 47.03907848385971
+    },
+    "kernel_sum_us": {
+      "eager": 238.95036916666666,
+      "compile": 151.48517833333332,
+      "speedup": 1.5773844794298744,
+      "reduction_pct": 36.603915339560245
+    },
+    "gap_us": {
+      "eager": 23.231213333333333,
+      "compile": 5.850199166666667,
+      "speedup": 3.9710123829117494,
+      "reduction_pct": 74.81750486844999
+    },
+    "cpu_us": {
+      "eager": 366.16719416666666,
+      "compile": 303.6954808333333,
+      "speedup": 1.2057051134311003,
+      "reduction_pct": 17.060980428765117
+    },
+    "model_total_ms": {
+      "eager": 52.01981698162854,
+      "compile": 48.32001049537212,
+      "speedup": 1.0765688262135367,
+      "reduction_pct": 7.112302005143645
+    }
+  },
+  "attention": {
+    "eager": {
+      "cpu_us": {
+        "mean": 366.16719416666666,
+        "median": 357.2655,
+        "std": 80.57693343306424,
+        "min": 283.267,
+        "max": 2540.289,
+        "p95": 489.488
+      },
+      "projection_us": {
+        "mean": 297.0782475,
+        "median": 287.362,
+        "std": 56.598120141584594,
+        "min": 283.81,
+        "max": 1967.762,
+        "p95": 384.227
+      },
+      "kernel_sum_us": {
+        "mean": 238.95036916666666,
+        "median": 238.947,
+        "std": 1.1172915553020644,
+        "min": 235.586,
+        "max": 242.562,
+        "p95": 240.77
+      },
+      "gpu_op_sum_us": {
+        "mean": 273.8470341666667,
+        "median": 273.825,
+        "std": 0.9986681295602191,
+        "min": 271.362,
+        "max": 276.995,
+        "p95": 275.554
+      },
+      "gap_us": {
+        "mean": 23.231213333333333,
+        "median": 13.5205,
+        "std": 56.63378065815627,
+        "min": 10.56,
+        "max": 1695.213,
+        "p95": 110.593
+      },
+      "kernel_count": {
+        "mean": 9,
+        "median": 9.0,
+        "std": 0.0,
+        "min": 9,
+        "max": 9,
+        "p95": 9
+      },
+      "gpu_op_count": {
+        "mean": 10,
+        "median": 10.0,
+        "std": 0.0,
+        "min": 10,
+        "max": 10,
+        "p95": 10
+      },
+      "per_model_forward_attention_or_ffn_projection_ms": {
+        "mean": 3.56493897,
+        "median": 3.5471190000000004,
+        "std": 0.221194863393093,
+        "min": 3.474239,
+        "max": 5.724756999999999,
+        "p95": 3.576641
+      },
+      "by_layer": {
+        "1": {
+          "mean": 396.24661,
+          "median": 384.7875,
+          "std": 161.3810002936464,
+          "min": 322.627,
+          "max": 1967.762,
+          "p95": 405.604
+        },
+        "2": {
+          "mean": 289.74942,
+          "median": 286.83450000000005,
+          "std": 23.768520662918846,
+          "min": 284.227,
+          "max": 522.725,
+          "p95": 289.027
+        },
+        "3": {
+          "mean": 286.79284,
+          "median": 286.754,
+          "std": 1.146456267984084,
+          "min": 283.906,
+          "max": 289.731,
+          "p95": 288.643
+        },
+        "4": {
+          "mean": 287.08824,
+          "median": 286.994,
+          "std": 1.1427649025061986,
+          "min": 283.81,
+          "max": 289.955,
+          "p95": 289.026
+        },
+        "5": {
+          "mean": 286.87243,
+          "median": 286.88300000000004,
+          "std": 0.9835013193178758,
+          "min": 283.906,
+          "max": 289.539,
+          "p95": 288.547
+        },
+        "6": {
+          "mean": 287.05478,
+          "median": 287.02700000000004,
+          "std": 0.9430353607368062,
+          "min": 284.163,
+          "max": 288.963,
+          "p95": 288.483
+        },
+        "7": {
+          "mean": 286.83038,
+          "median": 286.627,
+          "std": 0.9827557558213548,
+          "min": 284.61,
+          "max": 289.219,
+          "p95": 288.707
+        },
+        "8": {
+          "mean": 289.55763,
+          "median": 287.5385,
+          "std": 18.491026989139893,
+          "min": 284.386,
+          "max": 473.06,
+          "p95": 289.987
+        },
+        "9": {
+          "mean": 290.21278,
+          "median": 288.003,
+          "std": 22.433810039126215,
+          "min": 285.474,
+          "max": 513.157,
+          "p95": 289.827
+        },
+        "10": {
+          "mean": 289.32005,
+          "median": 287.778,
+          "std": 15.219929204418131,
+          "min": 285.858,
+          "max": 440.388,
+          "p95": 289.571
+        },
+        "11": {
+          "mean": 287.50338,
+          "median": 287.507,
+          "std": 1.1424748380599015,
+          "min": 284.962,
+          "max": 290.531,
+          "p95": 289.154
+        },
+        "12": {
+          "mean": 287.71043,
+          "median": 287.619,
+          "std": 1.0850763683262135,
+          "min": 284.962,
+          "max": 290.563,
+          "p95": 289.442
+        }
+      },
+      "total_projection_ms": 356.493897,
+      "total_kernel_ms": 286.740443,
+      "kernel_groups": [
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize64x64x8_stage3_warpsize1x4x1_ffma_aligna4_alignc4_execute_kernel__5x_cublas",
+          "count": 1200,
+          "total_ms": 74.393517,
+          "contribution_per_call_us": 61.994597500000005,
+          "mean": 61.9945975,
+          "median": 61.985,
+          "std": 0.36599828391275746,
+          "min": 61.025,
+          "max": 63.105,
+          "p95": 62.592
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "sm80_xmma_gemm_f32f32_f32f32_f32_nn_n_tilesize64x64x8_stage3_warpsize1x4x1_ffma_aligna4_alignc4_execute_kernel__5x_cublas",
+          "count": 1200,
+          "total_ms": 53.118025,
+          "contribution_per_call_us": 44.26502083333333,
+          "mean": 44.26502083333333,
+          "median": 44.16,
+          "std": 0.45143742873843756,
+          "min": 43.424,
+          "max": 45.633,
+          "p95": 45.089
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::elementwise_kernel<(int)128, (int)2, void at::native::gpu_kernel_impl_nocast<at::native::<unnamed>::masked_fill_kernel(at::TensorIterator &, const c10::Scalar &)::[lambda() (instance 1)]::operator ()() const::[lambda() (instance 7)]::operator ()() const::[lambda(float, bool) (instance 1)]>(at::TensorIteratorBase &, const T1 &)::[lambda(int) (instance 1)]>(int, T3)",
+          "count": 1200,
+          "total_ms": 52.829302000000006,
+          "contribution_per_call_us": 44.02441833333334,
+          "mean": 44.02441833333334,
+          "median": 43.712,
+          "std": 0.5353429586074285,
+          "min": 43.297,
+          "max": 45.185,
+          "p95": 44.8
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void <unnamed>::softmax_warp_forward<float, float, float, (int)9, (bool)0, (bool)0, (int)32>(T2 *, const T1 *, int, int, int, const bool *, int, bool)",
+          "count": 1200,
+          "total_ms": 47.909832,
+          "contribution_per_call_us": 39.92486,
+          "mean": 39.92486,
+          "median": 39.84,
+          "std": 0.8179964387045539,
+          "min": 38.112,
+          "max": 42.752,
+          "p95": 41.441
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::vectorized_elementwise_kernel<(int)4, at::native::BUnaryFunctor<float, float, float, at::native::binary_internal::MulFunctor<float>>, std::array<char *, (unsigned long)2>, (bool)0>(int, T2, T3)",
+          "count": 1200,
+          "total_ms": 42.357889,
+          "contribution_per_call_us": 35.29824083333334,
+          "mean": 35.29824083333333,
+          "median": 35.136,
+          "std": 0.4146694661606668,
+          "min": 34.464,
+          "max": 36.448,
+          "p95": 36.032
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::elementwise_kernel<(int)128, (int)2, void at::native::gpu_kernel_impl_nocast<at::native::direct_copy_kernel_cuda(at::TensorIteratorBase &)::[lambda() (instance 3)]::operator ()() const::[lambda() (instance 7)]::operator ()() const::[lambda(float) (instance 1)]>(at::TensorIteratorBase &, const T1 &)::[lambda(int) (instance 1)]>(int, T3)",
+          "count": 1200,
+          "total_ms": 9.713691,
+          "contribution_per_call_us": 8.0947425,
+          "mean": 8.0947425,
+          "median": 8.032,
+          "std": 0.28795108588164187,
+          "min": 7.776,
+          "max": 9.344,
+          "p95": 8.96
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::triu_tril_kernel<bool, int, (bool)0, (int)8, (bool)0>(at::cuda::detail::TensorInfo<T1, T2>, at::cuda::detail::TensorInfo<const T1, T2>, long, long, T2)",
+          "count": 1200,
+          "total_ms": 3.261944,
+          "contribution_per_call_us": 2.7182866666666667,
+          "mean": 2.7182866666666667,
+          "median": 2.72,
+          "std": 0.08546354674492633,
+          "min": 2.56,
+          "max": 3.328,
+          "p95": 2.88
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::vectorized_elementwise_kernel<(int)8, at::native::bitwise_not_kernel_cuda(at::TensorIteratorBase &)::[lambda(bool) (instance 1)], std::array<char *, (unsigned long)2>, (bool)0>(int, T2, T3)",
+          "count": 1200,
+          "total_ms": 1.747752,
+          "contribution_per_call_us": 1.4564599999999999,
+          "mean": 1.4564599999999999,
+          "median": 1.44,
+          "std": 0.05687983005131669,
+          "min": 1.376,
+          "max": 2.112,
+          "p95": 1.568
+        },
+        {
+          "case": "eager",
+          "module": "attention",
+          "name": "void at::native::vectorized_elementwise_kernel<(int)8, at::native::FillFunctor<bool>, std::array<char *, (unsigned long)1>, (bool)0>(int, T2, T3)",
+          "count": 1200,
+          "total_ms": 1.408491,
+          "contribution_per_call_us": 1.1737425,
+          "mean": 1.1737425,
+          "median": 1.152,
+          "std": 0.054430563048254436,
+          "min": 1.12,
+          "max": 1.792,
+          "p95": 1.28
+        }
+      ],
+      "validation": {
+        "total_ranges": 1260,
+        "warmup_ranges": 60,
+        "measured_ranges": 1200,
+        "projection_reconstruction_mismatches": 0,
+        "gpu_ops_equal_correlated_ops_count": true,
+        "memop_sql": [
+          "SELECT g.start,g.end,r.start AS launch_start,r.globalTid\n                FROM CUPTI_ACTIVITY_KIND_MEMSET g JOIN CUPTI_ACTIVITY_KIND_RUNTIME r\n                ON r.correlationId=g.correlationId\n                AND (r.globalTid >> 24)=(g.globalPid >> 24) ORDER BY r.start",
+          "SELECT g.start,g.end,r.start AS launch_start,r.globalTid\n                FROM CUPTI_ACTIVITY_KIND_MEMCPY g JOIN CUPTI_ACTIVITY_KIND_RUNTIME r\n                ON r.correlationId=g.correlationId\n                AND (r.globalTid >> 24)=(g.globalPid >> 24) ORDER BY r.start"
+        ]
+      }
+    },
+    "compile": {
+      "cpu_us": {
+        "mean": 303.6954808333333,
+        "median": 289.65599999999995,
+        "std": 40.24356604793657,
+        "min": 258.65,
+        "max": 694.385,
+        "p95": 371.887
+      },
+      "projection_us": {
+        "mean": 157.3353775,
+        "median": 157.409,
+        "std": 0.9136467141773581,
+        "min": 154.401,
+        "max": 172.45,
+        "p95": 158.529
+      },
+      "kernel_sum_us": {
+        "mean": 151.48517833333332,
+        "median": 151.49,
+        "std": 0.5277185343822556,
+        "min": 149.73,
+        "max": 153.121,
+        "p95": 152.321
+      },
+      "gpu_op_sum_us": {
+        "mean": 151.48517833333332,
+        "median": 151.49,
+        "std": 0.5277185343822556,
+        "min": 149.73,
+        "max": 153.121,
+        "p95": 152.321
+      },
+      "gap_us": {
+        "mean": 5.850199166666667,
+        "median": 6.016,
+        "std": 0.784735838461563,
+        "min": 4.0,
+        "max": 21.664,
+        "p95": 6.624
+      },
+      "kernel_count": {
+        "mean": 5,
+        "median": 5.0,
+        "std": 0.0,
+        "min": 5,
+        "max": 5,
+        "p95": 5
+      },
+      "gpu_op_count": {
+        "mean": 5,
+        "median": 5.0,
+        "std": 0.0,
+        "min": 5,
+        "max": 5,
+        "p95": 5
+      },
+      "per_model_forward_attention_or_ffn_projection_ms": {
+        "mean": 1.88802453,
+        "median": 1.887903,
+        "std": 0.00282544375790777,
+        "min": 1.87931,
+        "max": 1.89848,
+        "p95": 1.8916279999999999
+      },
+      "by_layer": {
+        "1": {
+          "mean": 156.20741,
+          "median": 156.065,
+          "std": 1.7178149964125928,
+          "min": 154.401,
+          "max": 172.45,
+          "p95": 157.025
+        },
+        "2": {
+          "mean": 157.30841,
+          "median": 157.281,
+          "std": 0.7526887948548195,
+          "min": 155.457,
+          "max": 159.041,
+          "p95": 158.561
+        },
+        "3": {
+          "mean": 157.50207,
+          "median": 157.569,
+          "std": 0.7074804909677729,
+          "min": 155.746,
+          "max": 158.882,
+          "p95": 158.657
+        },
+        "4": {
+          "mean": 157.4975,
+          "median": 157.425,
+          "std": 0.6456200198259034,
+          "min": 155.809,
+          "max": 159.714,
+          "p95": 158.529
+        },
+        "5": {
+          "mean": 157.02053,
+          "median": 157.026,
+          "std": 0.6381499738306043,
+          "min": 155.617,
+          "max": 158.369,
+          "p95": 157.986
+        },
+        "6": {
+          "mean": 157.59189,
+          "median": 157.6175,
+          "std": 0.6965650995420313,
+          "min": 155.361,
+          "max": 159.361,
+          "p95": 158.657
+        },
+        "7": {
+          "mean": 157.42368,
+          "median": 157.441,
+          "std": 0.6869884261033794,
+          "min": 155.65,
+          "max": 159.105,
+          "p95": 158.433
+        },
+        "8": {
+          "mean": 157.52349,
+          "median": 157.5695,
+          "std": 0.6321945032187479,
+          "min": 155.905,
+          "max": 159.265,
+          "p95": 158.497
+        },
+        "9": {
+          "mean": 157.30266,
+          "median": 157.2815,
+          "std": 0.6509637350882156,
+          "min": 155.841,
+          "max": 158.593,
+          "p95": 158.273
+        },
+        "10": {
+          "mean": 157.82303,
+          "median": 157.857,
+          "std": 0.8061524850175685,
+          "min": 156.225,
+          "max": 162.721,
+          "p95": 158.785
+        },
+        "11": {
+          "mean": 157.25621,
+          "median": 157.21699999999998,
+          "std": 0.6157360683767034,
+          "min": 155.649,
+          "max": 158.657,
+          "p95": 158.241
+        },
+        "12": {
+          "mean": 157.56765,
+          "median": 157.602,
+          "std": 0.7287528164611091,
+          "min": 155.489,
+          "max": 159.297,
+          "p95": 158.625
+        }
+      },
+      "total_projection_ms": 188.802453,
+      "total_kernel_ms": 181.782214,
+      "kernel_groups": [
+        {
+          "case": "compile",
+          "module": "attention",
+          "name": "sm80_xmma_gemm_f32f32_f32f32_f32_tn_n_tilesize64x64x8_stage3_warpsize1x4x1_ffma_aligna4_alignc4_execute_kernel__5x_cublas",
+          "count": 1200,
+          "total_ms": 74.091091,
+          "contribution_per_call_us": 61.74257583333333,
+          "mean": 61.74257583333333,
+          "median": 61.729,
+          "std": 0.2681101034698972,
+          "min": 60.96,
+          "max": 62.72,
+          "p95": 62.177
+        },
+        {
+          "case": "compile",
+          "module": "attention",
+          "name": "sm80_xmma_gemm_f32f32_f32f32_f32_nn_n_tilesize64x64x8_stage3_warpsize1x4x1_ffma_aligna4_alignc4_execute_kernel__5x_cublas",
+          "count": 1200,
+          "total_ms": 52.986131,
+          "contribution_per_call_us": 44.15510916666667,
+          "mean": 44.15510916666667,
+          "median": 44.128,
+          "std": 0.3817217340541472,
+          "min": 43.392,
+          "max": 45.504,
+          "p95": 44.833
+        },
+        {
+          "case": "compile",
+          "module": "attention",
+          "name": "triton_per_fused__softmax_div_masked_fill_prepare_softmax_online_view_1",
+          "count": 1200,
+          "total_ms": 45.512628,
+          "contribution_per_call_us": 37.927189999999996,
+          "mean": 37.92719,
+          "median": 37.856,
+          "std": 0.46047065838480244,
+          "min": 36.896,
+          "max": 39.232,
+          "p95": 38.721
+        },
+        {
+          "case": "compile",
+          "module": "attention",
+          "name": "triton_poi_fused_clone_2",
+          "count": 1200,
+          "total_ms": 7.5974390000000005,
+          "contribution_per_call_us": 6.331199166666667,
+          "mean": 6.331199166666667,
+          "median": 6.304,
+          "std": 0.20743459491119656,
+          "min": 5.984,
+          "max": 7.488,
+          "p95": 6.752
+        },
+        {
+          "case": "compile",
+          "module": "attention",
+          "name": "triton_poi_fused_bitwise_not_ones_tril_0",
+          "count": 1200,
+          "total_ms": 1.594925,
+          "contribution_per_call_us": 1.3291041666666665,
+          "mean": 1.3291041666666668,
+          "median": 1.312,
+          "std": 0.048462132804615816,
+          "min": 1.248,
+          "max": 1.504,
+          "p95": 1.44
+        }
+      ],
+      "validation": {
+        "total_ranges": 1260,
+        "warmup_ranges": 60,
+        "measured_ranges": 1200,
+        "projection_reconstruction_mismatches": 0,
+        "gpu_ops_equal_correlated_ops_count": true,
+        "memop_sql": [
+          "SELECT g.start,g.end,r.start AS launch_start,r.globalTid\n                FROM CUPTI_ACTIVITY_KIND_MEMSET g JOIN CUPTI_ACTIVITY_KIND_RUNTIME r\n                ON r.correlationId=g.correlationId\n                AND (r.globalTid >> 24)=(g.globalPid >> 24) ORDER BY r.start",
+          "SELECT g.start,g.end,r.start AS launch_start,r.globalTid\n                FROM CUPTI_ACTIVITY_KIND_MEMCPY g JOIN CUPTI_ACTIVITY_KIND_RUNTIME r\n                ON r.correlationId=g.correlationId\n                AND (r.globalTid >> 24)=(g.globalPid >> 24) ORDER BY r.start"
+        ]
+      }
+    }
+  }
+}

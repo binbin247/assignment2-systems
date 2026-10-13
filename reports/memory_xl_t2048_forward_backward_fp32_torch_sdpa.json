@@ -1,0 +1,62 @@
+{
+  "status": "ok",
+  "config": {
+    "model_size": "xl",
+    "d_model": 2560,
+    "d_ff": 10240,
+    "num_layers": 32,
+    "num_heads": 32,
+    "vocab_size": 10000,
+    "batch_size": 4,
+    "context_length": 2048,
+    "rope_theta": 10000.0,
+    "mode": "forward-backward",
+    "warmup_steps": 5,
+    "num_steps": 3,
+    "device": "cuda:0",
+    "dtype": "float32",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "seed": 336,
+    "timing": "end-to-end",
+    "output": "reports/memory_xl_t2048_forward_backward_fp32_torch_sdpa.json",
+    "memory_snapshot": "reports/memory_xl_t2048_forward_backward_fp32_torch_sdpa.pickle"
+  },
+  "model_config": {
+    "vocab_size": 10000,
+    "context_length": 2048,
+    "d_model": 2560,
+    "d_ff": 10240,
+    "num_layers": 32,
+    "num_heads": 32,
+    "rope_theta": 10000.0
+  },
+  "num_parameters": 3406809600,
+  "environment": {
+    "torch_version": "2.14.0+cu130",
+    "cuda_version": "13.0",
+    "device_name": "NVIDIA H100 80GB HBM3",
+    "optimizer": null,
+    "float32_matmul_precision": "highest"
+  },
+  "std_definition": "population standard deviation (ddof=0)",
+  "measurements_ms": [
+    {
+      "total": 3804.2639368213713
+    },
+    {
+      "total": 3805.068847723305
+    },
+    {
+      "total": 3816.001582890749
+    }
+  ],
+  "summary": {
+    "total": {
+      "mean_ms": 3808.444789145142,
+      "std_ms": 5.353554531041246,
+      "min_ms": 3804.2639368213713,
+      "max_ms": 3816.001582890749
+    }
+  }
+}

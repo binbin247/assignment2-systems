@@ -1,0 +1,5 @@
+version,module,range,original_calls,excluded_warmup_calls,measured_calls,first_measured_range_id,last_measured_range_id,first_measured_original_start_s,mean_us,median_us,std_population_us,min_us,max_us,gpu_ops_per_call
+手写 SDPA,SDPA,:my_sdpa_torch_forward,180,60,120,123,361,5.161814689,694.6385,289.04449999999997,923.7329851628572,284.74,2830.472,10
+手写 SDPA,FFN,:ffn_forward,180,60,120,124,362,5.162232139,1559.0370083333332,733.002,1183.2118535566196,727.211,3290.415,8
+Torch SDPA,SDPA,:sdpa_torch_forward,180,60,120,123,361,4.694903145,101.83469166666667,97.42500000000001,8.96648935276588,94.688,136.865,3
+Torch SDPA,FFN,:ffn_forward,180,60,120,124,362,4.69505937,726.4248083333333,726.534,1.9079077471401036,721.958,732.102,8

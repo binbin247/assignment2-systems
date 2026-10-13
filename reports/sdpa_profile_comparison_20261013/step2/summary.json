@@ -1,0 +1,94 @@
+{
+  "method": "Per NVTX label, sort by Orig Start; discard first 60 and retain last 120. Pasted values matched to official ns-resolution CSV by RangeId; statistics use official values.",
+  "std_definition": "population standard deviation, ddof=0",
+  "retained_rows": 480,
+  "excluded_rows": 240,
+  "summary": [
+    {
+      "version": "手写 SDPA",
+      "module": "SDPA",
+      "range": ":my_sdpa_torch_forward",
+      "original_calls": 180,
+      "excluded_warmup_calls": 60,
+      "measured_calls": 120,
+      "first_measured_range_id": 123,
+      "last_measured_range_id": 361,
+      "first_measured_original_start_s": 5.161814689,
+      "mean_us": 694.6385,
+      "median_us": 289.04449999999997,
+      "std_population_us": 923.7329851628572,
+      "min_us": 284.74,
+      "max_us": 2830.472,
+      "gpu_ops_per_call": 10
+    },
+    {
+      "version": "手写 SDPA",
+      "module": "FFN",
+      "range": ":ffn_forward",
+      "original_calls": 180,
+      "excluded_warmup_calls": 60,
+      "measured_calls": 120,
+      "first_measured_range_id": 124,
+      "last_measured_range_id": 362,
+      "first_measured_original_start_s": 5.162232139,
+      "mean_us": 1559.0370083333332,
+      "median_us": 733.002,
+      "std_population_us": 1183.2118535566196,
+      "min_us": 727.211,
+      "max_us": 3290.415,
+      "gpu_ops_per_call": 8
+    },
+    {
+      "version": "Torch SDPA",
+      "module": "SDPA",
+      "range": ":sdpa_torch_forward",
+      "original_calls": 180,
+      "excluded_warmup_calls": 60,
+      "measured_calls": 120,
+      "first_measured_range_id": 123,
+      "last_measured_range_id": 361,
+      "first_measured_original_start_s": 4.694903145,
+      "mean_us": 101.83469166666667,
+      "median_us": 97.42500000000001,
+      "std_population_us": 8.96648935276588,
+      "min_us": 94.688,
+      "max_us": 136.865,
+      "gpu_ops_per_call": 3
+    },
+    {
+      "version": "Torch SDPA",
+      "module": "FFN",
+      "range": ":ffn_forward",
+      "original_calls": 180,
+      "excluded_warmup_calls": 60,
+      "measured_calls": 120,
+      "first_measured_range_id": 124,
+      "last_measured_range_id": 362,
+      "first_measured_original_start_s": 4.69505937,
+      "mean_us": 726.4248083333333,
+      "median_us": 726.534,
+      "std_population_us": 1.9079077471401036,
+      "min_us": 721.958,
+      "max_us": 732.102,
+      "gpu_ops_per_call": 8
+    }
+  ],
+  "validation": [
+    {
+      "capture": "my_latest",
+      "matched_ranges": 360,
+      "all_metadata_matched": true,
+      "all_times_within_display_rounding": true,
+      "per_label_sort_order_matched": true,
+      "pasted_sha256": "afc6c9c1157a1027b98670f08ed76d7eeaced5c2cf51462e616f2dc26b13c55e"
+    },
+    {
+      "capture": "torch",
+      "matched_ranges": 360,
+      "all_metadata_matched": true,
+      "all_times_within_display_rounding": true,
+      "per_label_sort_order_matched": true,
+      "pasted_sha256": "ead3e412df4c57fab3afebfff45c8551587427e2e32965ed13299591c4cee092"
+    }
+  ]
+}

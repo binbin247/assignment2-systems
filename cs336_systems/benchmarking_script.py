@@ -18,7 +18,7 @@ included in the step total; model/data initialization and reporting are not.
 """
 
 from __future__ import annotations
-
+from cs336_basics.nn_utils import my_scaled_dot_product_attention
 import argparse
 import json
 import math
@@ -65,6 +65,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--timing", choices=("end-to-end", "breakdown"), default="end-to-end",
                         help="Breakdown additionally times zero_grad, forward, loss, backward, and optimizer.")
     parser.add_argument("--output", type=Path, help="Save metadata, per-step times, and summaries as JSON.")
+    parser.add_argument("--memory-snapshot", type=Path, help="Record CUDA memory history and save it as a pickle file.")
+    parser.add_argument(
+        "--if-compile-sdpa",
+        action="store_true",
+        help="Compile the handwritten scaled dot-product attention.",
+        ) 
     args = parser.parse_args(argv)
 
     for name, value in zip(("d_model", "d_ff", "num_layers", "num_heads"), MODEL_SIZES[args.model_size]):
@@ -88,6 +94,8 @@ def benchmark(args: argparse.Namespace) -> dict:
     device = torch.device(
         args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     )
+    if args.memory_snapshot is not None and device.type != "cuda":
+        raise ValueError("--memory-snapshot requires a CUDA device")
     dtype = getattr(torch, args.dtype)
     if device.type == "cuda":
         if device.index is None:
@@ -108,6 +116,14 @@ def benchmark(args: argparse.Namespace) -> dict:
         torch.set_default_dtype(original_dtype)
     backward = args.mode != "forward"
     model.train(backward)
+    attention_fn = my_scaled_dot_product_attention
+    if args.if_compile_sdpa:
+        attention_fn = torch.compile(
+            attention_fn
+        )
+    for layer in model.layers:
+        layer.attn.attention_fn = attention_fn
+
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay) if args.mode == "train" else None
     tokens = torch.randint(args.vocab_size, (args.batch_size, args.context_length + 1), device=device)
     inputs, targets = tokens[:, :-1].contiguous(), tokens[:, 1:].contiguous()
@@ -159,7 +175,17 @@ def benchmark(args: argparse.Namespace) -> dict:
     with torch.set_grad_enabled(backward):
         for _ in range(args.warmup_steps):
             step()
+
+        # start recording memory history
+        if args.memory_snapshot is not None:
+            args.memory_snapshot.parent.mkdir(parents=True, exist_ok=True)
+            torch.cuda.memory._record_memory_history(max_entries=1000000)
+        # Profile the running steps
         measurements = [step() for _ in range(args.num_steps)]
+        # save a pickle file to be loaded by Pytorch's online tool and stop recording the history
+        if args.memory_snapshot is not None:
+            torch.cuda.memory._dump_snapshot(str(args.memory_snapshot))
+            torch.cuda.memory._record_memory_history(enabled=None)
 
     return {
         "status": "ok",

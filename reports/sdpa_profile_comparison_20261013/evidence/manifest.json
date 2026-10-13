@@ -1,0 +1,196 @@
+[
+  {
+    "name": "torch",
+    "report_path": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/reports/nsys_torch_sdpa_ffn_forward.nsys-rep",
+    "sha256": "5b5857f3d8cd1849d34777a01be71948e842c48c5d68eddc41e80f55c36345ca",
+    "report_bytes": 772602,
+    "sqlite_path": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/reports/nsys_torch_sdpa_ffn_forward.sqlite",
+    "nvtx_gpu_proj_sum": "/tmp/sdpa-report-evidence-x51uxdpm/torch_nvtx_gpu_proj_sum.csv",
+    "nvtx_gpu_proj_trace": "/tmp/sdpa-report-evidence-x51uxdpm/torch_nvtx_gpu_proj_trace.csv",
+    "nvtx_kern_sum": "/tmp/sdpa-report-evidence-x51uxdpm/torch_nvtx_kern_sum.csv",
+    "benchmark": {
+      "status": "ok",
+      "config": {
+        "model_size": "small",
+        "d_model": 768,
+        "d_ff": 3072,
+        "num_layers": 12,
+        "num_heads": 12,
+        "vocab_size": 10000,
+        "batch_size": 4,
+        "context_length": 512,
+        "rope_theta": 10000.0,
+        "mode": "forward",
+        "warmup_steps": 5,
+        "num_steps": 10,
+        "device": "cuda:0",
+        "dtype": "float32",
+        "learning_rate": 0.0001,
+        "weight_decay": 0.01,
+        "seed": 336,
+        "timing": "end-to-end",
+        "output": "reports/nsys_torch_sdpa_ffn_forward.json"
+      },
+      "model_config": {
+        "vocab_size": 10000,
+        "context_length": 512,
+        "d_model": 768,
+        "d_ff": 3072,
+        "num_layers": 12,
+        "num_heads": 12,
+        "rope_theta": 10000.0
+      },
+      "num_parameters": 128625408,
+      "environment": {
+        "torch_version": "2.14.0+cu130",
+        "cuda_version": "13.0",
+        "device_name": "NVIDIA H100 80GB HBM3",
+        "optimizer": null,
+        "float32_matmul_precision": "highest"
+      },
+      "std_definition": "population standard deviation (ddof=0)",
+      "measurements_ms": [
+        {
+          "total": 15.54623432457447
+        },
+        {
+          "total": 15.597187913954258
+        },
+        {
+          "total": 15.544240828603506
+        },
+        {
+          "total": 15.573788899928331
+        },
+        {
+          "total": 15.590386930853128
+        },
+        {
+          "total": 15.58547792956233
+        },
+        {
+          "total": 15.522964298725128
+        },
+        {
+          "total": 15.559733845293522
+        },
+        {
+          "total": 15.562554821372032
+        },
+        {
+          "total": 15.554268378764391
+        }
+      ],
+      "summary": {
+        "total": {
+          "mean_ms": 15.56368381716311,
+          "std_ms": 0.022042681285525084,
+          "min_ms": 15.522964298725128,
+          "max_ms": 15.597187913954258
+        }
+      }
+    }
+  },
+  {
+    "name": "my_latest",
+    "report_path": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/reports/nsys_my_sdpa_ffn_forward.nsys-rep",
+    "sha256": "676817784d48ea85e14e5993a714bbcdb71c041887286314c29fdbc28c8b1e93",
+    "report_bytes": 871157,
+    "sqlite_path": "/tmp/sdpa-profile-compare-kvn3f08y/later.sqlite",
+    "nvtx_gpu_proj_sum": "/tmp/sdpa-report-evidence-x51uxdpm/my_latest_nvtx_gpu_proj_sum.csv",
+    "nvtx_gpu_proj_trace": "/tmp/sdpa-report-evidence-x51uxdpm/my_latest_nvtx_gpu_proj_trace.csv",
+    "nvtx_kern_sum": "/tmp/sdpa-report-evidence-x51uxdpm/my_latest_nvtx_kern_sum.csv",
+    "benchmark": {
+      "status": "ok",
+      "config": {
+        "model_size": "small",
+        "d_model": 768,
+        "d_ff": 3072,
+        "num_layers": 12,
+        "num_heads": 12,
+        "vocab_size": 10000,
+        "batch_size": 4,
+        "context_length": 512,
+        "rope_theta": 10000.0,
+        "mode": "forward",
+        "warmup_steps": 5,
+        "num_steps": 10,
+        "device": "cuda:0",
+        "dtype": "float32",
+        "learning_rate": 0.0001,
+        "weight_decay": 0.01,
+        "seed": 336,
+        "timing": "end-to-end",
+        "output": "reports/nsys_my_sdpa_ffn_forward.json"
+      },
+      "model_config": {
+        "vocab_size": 10000,
+        "context_length": 512,
+        "d_model": 768,
+        "d_ff": 3072,
+        "num_layers": 12,
+        "num_heads": 12,
+        "rope_theta": 10000.0
+      },
+      "num_parameters": 128625408,
+      "environment": {
+        "torch_version": "2.14.0+cu130",
+        "cuda_version": "13.0",
+        "device_name": "NVIDIA H100 80GB HBM3",
+        "optimizer": null,
+        "float32_matmul_precision": "highest"
+      },
+      "std_definition": "population standard deviation (ddof=0)",
+      "measurements_ms": [
+        {
+          "total": 40.32440762966871
+        },
+        {
+          "total": 40.35082599148154
+        },
+        {
+          "total": 40.38350377231836
+        },
+        {
+          "total": 40.33690504729748
+        },
+        {
+          "total": 36.38771688565612
+        },
+        {
+          "total": 40.32258503139019
+        },
+        {
+          "total": 40.30644707381725
+        },
+        {
+          "total": 40.342059917747974
+        },
+        {
+          "total": 40.32826377078891
+        },
+        {
+          "total": 40.348871145397425
+        }
+      ],
+      "summary": {
+        "total": {
+          "mean_ms": 39.9431586265564,
+          "std_ms": 1.1853110688654254,
+          "min_ms": 36.38771688565612,
+          "max_ms": 40.38350377231836
+        }
+      }
+    }
+  },
+  {
+    "name": "my_earlier",
+    "report_path": "/tmp/nsys-report-2c19.nsys-rep",
+    "sha256": "9b168931739162ec2204754538e9172af052cbda8c8d3a393ecbf53a8331b046",
+    "report_bytes": 871953,
+    "sqlite_path": "/tmp/sdpa-profile-compare-kvn3f08y/earlier.sqlite",
+    "nvtx_gpu_proj_sum": "/tmp/sdpa-report-evidence-x51uxdpm/my_earlier_nvtx_gpu_proj_sum.csv",
+    "nvtx_gpu_proj_trace": "/tmp/sdpa-report-evidence-x51uxdpm/my_earlier_nvtx_gpu_proj_trace.csv",
+    "nvtx_kern_sum": "/tmp/sdpa-report-evidence-x51uxdpm/my_earlier_nvtx_kern_sum.csv"
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "original_sha256_match": true,
+  "official_projection_reconstruction": 1080,
+  "measured_per_module": 120,
+  "handwritten_kernel_signatures_match": true,
+  "browser": {
+    "runtime_errors": 0,
+    "charts_rendered": 4,
+    "table_pagination_verified": true,
+    "legend_toggle_and_restore_verified": true,
+    "normal_and_narrow_widths_checked": true
+  }
+}

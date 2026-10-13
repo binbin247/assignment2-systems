@@ -1,0 +1,82 @@
+{
+  "status": "ok",
+  "config": {
+    "model_size": "small",
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "vocab_size": 10000,
+    "batch_size": 4,
+    "context_length": 512,
+    "rope_theta": 10000.0,
+    "mode": "forward",
+    "warmup_steps": 5,
+    "num_steps": 10,
+    "device": "cuda:0",
+    "dtype": "float32",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "seed": 336,
+    "timing": "end-to-end",
+    "output": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/work/benchmarking/small-forward-w5-e2e.json"
+  },
+  "model_config": {
+    "vocab_size": 10000,
+    "context_length": 512,
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "rope_theta": 10000.0
+  },
+  "num_parameters": 128625408,
+  "environment": {
+    "torch_version": "2.14.0+cu130",
+    "cuda_version": "13.0",
+    "device_name": "NVIDIA H100 80GB HBM3",
+    "optimizer": null,
+    "float32_matmul_precision": "highest"
+  },
+  "std_definition": "population standard deviation (ddof=0)",
+  "measurements_ms": [
+    {
+      "total": 15.199087094515562
+    },
+    {
+      "total": 15.24276938289404
+    },
+    {
+      "total": 15.816568862646818
+    },
+    {
+      "total": 15.277279075235128
+    },
+    {
+      "total": 15.277331694960594
+    },
+    {
+      "total": 15.272346790879965
+    },
+    {
+      "total": 15.247157774865627
+    },
+    {
+      "total": 15.312082134187222
+    },
+    {
+      "total": 15.293148811906576
+    },
+    {
+      "total": 15.268528368324041
+    }
+  ],
+  "summary": {
+    "total": {
+      "mean_ms": 15.320629999041557,
+      "std_ms": 0.16787395653638365,
+      "min_ms": 15.199087094515562,
+      "max_ms": 15.816568862646818
+    }
+  }
+}

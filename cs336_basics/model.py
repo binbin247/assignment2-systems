@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 import torch.cuda.nvtx as nvtx
-from nn_utils import my_scaled_dot_product_attention
+from cs336_basics.nn_utils import my_scaled_dot_product_attention
 
 from cs336_basics.rotary_embedding import RotaryEmbedding
 
@@ -263,6 +263,8 @@ class CausalMultiHeadSelfAttention(nn.Module):
         if positional_encoder is None:
             warnings.warn("No positional encoder provided", stacklevel=2)
         assert d_model % num_heads == 0
+        self.attention_fn = my_scaled_dot_product_attention
+
         self.d_model = d_model
         self.num_heads = num_heads
 
@@ -302,11 +304,11 @@ class CausalMultiHeadSelfAttention(nn.Module):
             Q = self.positional_encoder(Q, token_positions)
             K = self.positional_encoder(K, token_positions)
 
-        with nvtx.range("sdpa_torch_forward"):
+        with nvtx.range("my_sdpa_torch_forward"):
             # Shape: (..., num_heads, sequence_length, d_k)
 
             # attn_output = F.scaled_dot_product_attention(Q, K, V, dropout_p=0.0, is_causal=True)
-            attn_output = my_scaled_dot_product_attention(Q, K, V)
+            attn_output = self.attention_fn(Q, K, V, is_causal=True)
 
         # Concatenate the attention output from all heads.
         # (..., sequence_length, num_heads * d_v).
