@@ -9,6 +9,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 import torch.cuda.nvtx as nvtx
+from nn_utils import my_scaled_dot_product_attention
 
 from cs336_basics.rotary_embedding import RotaryEmbedding
 

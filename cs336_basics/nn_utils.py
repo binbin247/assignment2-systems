@@ -31,7 +31,7 @@ def clip_gradient(parameters, max_norm):
         g *= clip_coef
 
 
-def my_scaled_dot_production_attention(
+def my_scaled_dot_product_attention(
     Q: torch.Tensor,
     K: torch.Tensor,
     V: torch.Tensor,
