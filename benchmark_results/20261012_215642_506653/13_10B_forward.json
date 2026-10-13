@@ -1,0 +1,98 @@
+{
+  "status": "ok",
+  "config": {
+    "model_size": "10B",
+    "d_model": 4608,
+    "d_ff": 12288,
+    "num_layers": 50,
+    "num_heads": 36,
+    "vocab_size": 10000,
+    "batch_size": 4,
+    "context_length": 512,
+    "rope_theta": 10000.0,
+    "mode": "forward",
+    "warmup_steps": 5,
+    "num_steps": 10,
+    "device": "cuda:0",
+    "dtype": "float32",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "seed": 336,
+    "timing": "breakdown",
+    "output": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/benchmark_results/20261012_215642_506653/13_10B_forward.json"
+  },
+  "model_config": {
+    "vocab_size": 10000,
+    "context_length": 512,
+    "d_model": 4608,
+    "d_ff": 12288,
+    "num_layers": 50,
+    "num_heads": 36,
+    "rope_theta": 10000.0
+  },
+  "num_parameters": 12832823808,
+  "environment": {
+    "torch_version": "2.14.0+cu130",
+    "cuda_version": "13.0",
+    "device_name": "NVIDIA H100 80GB HBM3",
+    "optimizer": null,
+    "float32_matmul_precision": "highest"
+  },
+  "std_definition": "population standard deviation (ddof=0)",
+  "measurements_ms": [
+    {
+      "forward": 1230.16756772995,
+      "total": 1230.2132407203317
+    },
+    {
+      "forward": 1230.1858086138964,
+      "total": 1230.2452069707215
+    },
+    {
+      "forward": 1230.262042954564,
+      "total": 1230.2768831141293
+    },
+    {
+      "forward": 1230.0452748313546,
+      "total": 1230.06423516199
+    },
+    {
+      "forward": 1230.1423102617264,
+      "total": 1230.21139530465
+    },
+    {
+      "forward": 1230.3477013483644,
+      "total": 1230.3673410788178
+    },
+    {
+      "forward": 1230.0774860195816,
+      "total": 1230.1036780700088
+    },
+    {
+      "forward": 1230.151979252696,
+      "total": 1230.2146614529192
+    },
+    {
+      "forward": 1230.2701650187373,
+      "total": 1230.2882922813296
+    },
+    {
+      "forward": 1230.1080711185932,
+      "total": 1230.1655770279467
+    }
+  ],
+  "summary": {
+    "forward": {
+      "mean_ms": 1230.1758407149464,
+      "std_ms": 0.0889040234927243,
+      "min_ms": 1230.0452748313546,
+      "max_ms": 1230.3477013483644
+    },
+    "total": {
+      "mean_ms": 1230.2150511182845,
+      "std_ms": 0.08420389522641346,
+      "min_ms": 1230.06423516199,
+      "max_ms": 1230.3673410788178
+    }
+  }
+}

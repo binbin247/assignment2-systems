@@ -1,0 +1,78 @@
+CS336 Problem (benchmarking_script) 实现与实测结果
+实测日期：2026-10-12；服务器：niebinbin@zkrh-6
+已实现脚本：/data/private/niebinbin/test_and_study/cs336/assignment2-systems/cs336_systems/benchmarking_script.py
+
+环境与统计口径
+GPU 0：NVIDIA H100 80GB HBM3；使用服务器现有 Python 3.12.14 / PyTorch 2.14.0+cu130。
+本次实现未修改环境依赖；交付时仓库声明 torch>=2.11,<2.15，现有 2.14.0 环境满足这一范围。
+FP32；batch=4；context=512；vocab=10000；seed=336；AdamW 使用 cs336_basics.optimizer 的实现。
+每组测量 10 步，均值与总体标准差（ddof=0）均以毫秒表示。模型及数据初始化不计时。
+所有正式 GPU 测量串行执行；各组使用新 Python 进程，确保 warmup=0 时没有在本进程预先执行模型。
+模型配置严格采用 handout Table 1；未因 OOM 缩减 batch、context、层数或修改精度。
+
+(a) 脚本功能
+支持 small/medium/large/xl/10B 预设及自定义超参数、三种执行模式、预热步数、测量步数、设备、dtype 和 JSON 输出。
+使用 timeit.default_timer 计时；初始化后及每一步结束均同步 CUDA。
+forward 关闭 autograd；forward-backward 计算 next-token cross entropy 并反向；train 额外执行 AdamW 更新。
+每个含反向的步骤首先清空梯度，梯度清零包含在总耗时内；随机 token batch 在测量前生成并复用。
+
+(b) 预热 5 步后的分阶段耗时（mean ± std，ms）
+此表使用 train + breakdown：前向构建训练计算图，loss 单独计时，且每阶段末额外同步。
+model | forward | loss | backward | optimizer | total
+small | 15.261 ± 0.032 | 0.370 ± 0.004 | 30.896 ± 0.096 | 8.840 ± 0.122 | 55.782 ± 0.161
+medium | 42.870 ± 0.063 | 0.369 ± 0.001 | 85.824 ± 0.124 | 23.206 ± 0.039 | 153.070 ± 0.114
+large | 101.689 ± 0.049 | 0.392 ± 0.006 | 207.334 ± 0.128 | 50.750 ± 0.430 | 362.297 ± 0.482
+xl | 304.131 ± 0.116 | 0.389 ± 0.013 | 649.051 ± 0.245 | 165.578 ± 0.062 | 1120.424 ± 0.478
+10B | OOM | OOM | OOM | OOM | OOM
+
+10B 在 FP32 训练时实测显存不足（OOM），没有可用的完整训练计时，也未对它重复 0/1/2 步预热实验。
+
+默认 end-to-end 口径：仅在步末同步（mean ± std，ms；warmup=5）
+model | forward-only | forward+backward | full training
+small | 15.321 ± 0.168 | 46.903 ± 0.195 | 54.966 ± 0.070
+medium | 42.823 ± 0.076 | 129.404 ± 0.193 | 152.662 ± 0.621
+large | 101.098 ± 0.155 | 308.548 ± 0.133 | 358.512 ± 0.109
+xl | 302.761 ± 0.911 | 953.350 ± 0.472 | 1115.759 ± 3.010
+10B | 1237.333 ± 13.411 | OOM | 未重复（训练已 OOM）
+
+forward-only 使用 no_grad，不能与训练前向直接等同；breakdown 额外同步会改变执行调度，其 total 不等于默认 end-to-end 的吞吐量口径。
+不通过两种运行模式的均值相减来估计 backward：上方训练分阶段表给出了直接测量值。
+
+(b) 可用于作答的两句话
+H100 FP32、预热 5 步、测量 10 步时，前向 / 反向 / 优化器耗时（ms，均值 ± 总体标准差）依次为：small 为 15.261 ± 0.032 / 30.896 ± 0.096 / 8.840 ± 0.122；medium 为 42.870 ± 0.063 / 85.824 ± 0.124 / 23.206 ± 0.039；large 为 101.689 ± 0.049 / 207.334 ± 0.128 / 50.750 ± 0.430；xl 为 304.131 ± 0.116 / 649.051 ± 0.245 / 165.578 ± 0.062。
+这些阶段的相对标准差范围为 0.04%–1.38%，本轮波动较小；10B 的训练在单张 80GB H100 上 OOM，因此无法给出反向和优化器耗时。
+
+(c) 不同预热次数的完整训练 total（breakdown 口径；mean ± std，ms）
+model | warmup=0 | warmup=1 | warmup=2 | warmup=5
+small | 134.130 ± 209.558 | 69.708 ± 14.916 | 57.867 ± 6.269 | 55.782 ± 0.161
+medium | 232.662 ± 197.155 | 160.478 ± 2.172 | 159.718 ± 0.944 | 153.070 ± 0.114
+large | 471.390 ± 324.683 | 362.633 ± 5.469 | 361.235 ± 0.725 | 362.297 ± 0.482
+xl | 1258.306 ± 353.936 | 1138.104 ± 52.653 | 1120.605 ± 0.334 | 1120.424 ± 0.478
+
+warmup=0 时，10 个样本中第一步与其后 9 步均值（ms）
+model | first | remaining mean
+small | 762.696 | 64.290
+medium | 821.331 | 167.254
+large | 1445.425 | 363.164
+xl | 2306.050 | 1141.890
+
+(c) 可用于作答的三句话
+以 small 为例，预热 0/1/2/5 步时总耗时依次为 134.130 ± 209.558、69.708 ± 14.916、57.867 ± 6.269、55.782 ± 0.161 ms，不预热时的首步开销会影响均值和标准差。
+可能原因包括 CUDA 算子或库的首次初始化、内存分配器缓存建立，以及 AdamW 状态在第一次更新时才分配；这些机制是对现象的解释，本次计时本身没有单独验证每个原因。
+预热 1–2 步通常可消除主要的首次执行开销，但 GPU 频率、缓存、内存分配状态和运行时噪声仍可能使结果与预热 5 步不同，应结合上表标准差而非假设耗时随预热次数单调下降。
+
+运行示例（在服务器项目根目录执行）
+cd /data/private/niebinbin/test_and_study/cs336/assignment2-systems
+/data/private/niebinbin/envs/gpu/bin/python -m cs336_systems.benchmarking_script --model-size small --mode train --warmup-steps 5 --num-steps 10
+加入 --timing breakdown 可单独测量各阶段；加入 --output result.json 保存配置及每步原始耗时。
+将 --mode 替换为 forward 或 forward-backward 可切换模式。
+对 warmup=0/1/2 的比较请分别启动脚本，避免在同一 Python 进程内复用已热身模型。
+若依赖已通过 uv 安装，可使用脚本 --help 中的 uv run 示例。
+
+验证
+CPU/CUDA × 三种模式 × end-to-end(warmup=0)/breakdown(warmup=2)：12 个真实小模型行为检查通过。
+验证了前向执行次数、测量样本数、梯度生成、仅 train 更新权重、参数有限值、统计计算及阶段总和。
+另有 7 项非法参数检查，以及 CPU/CUDA BF16 与默认 dtype 恢复检查通过。
+脚本语法检查、git diff --check 通过；没有修改其他题目的实现或既有 .vscode 设置。
+
+配套 benchmarking_results.json 保存全部原始测量、配置和 OOM 错误。

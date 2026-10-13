@@ -1,0 +1,162 @@
+{
+  "status": "ok",
+  "config": {
+    "model_size": "small",
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "vocab_size": 10000,
+    "batch_size": 4,
+    "context_length": 512,
+    "rope_theta": 10000.0,
+    "mode": "train",
+    "warmup_steps": 5,
+    "num_steps": 10,
+    "device": "cuda:0",
+    "dtype": "float32",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "seed": 336,
+    "timing": "breakdown",
+    "output": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/benchmark_results/20261012_215642_506653/03_small_train.json"
+  },
+  "model_config": {
+    "vocab_size": 10000,
+    "context_length": 512,
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "rope_theta": 10000.0
+  },
+  "num_parameters": 128625408,
+  "environment": {
+    "torch_version": "2.14.0+cu130",
+    "cuda_version": "13.0",
+    "device_name": "NVIDIA H100 80GB HBM3",
+    "optimizer": "cs336_basics.optimizer.AdamW",
+    "float32_matmul_precision": "highest"
+  },
+  "std_definition": "population standard deviation (ddof=0)",
+  "measurements_ms": [
+    {
+      "zero_grad": 0.5687749944627285,
+      "forward": 15.703143086284399,
+      "loss": 0.13090111315250397,
+      "backward": 31.00399812683463,
+      "optimizer": 16.734701581299305,
+      "total": 64.43463731557131
+    },
+    {
+      "zero_grad": 0.5715959705412388,
+      "forward": 15.575740952044725,
+      "loss": 0.127274077385664,
+      "backward": 30.749786645174026,
+      "optimizer": 16.812141053378582,
+      "total": 64.1104718670249
+    },
+    {
+      "zero_grad": 0.5851550959050655,
+      "forward": 15.592282637953758,
+      "loss": 0.13241032138466835,
+      "backward": 30.798743944615126,
+      "optimizer": 17.607415094971657,
+      "total": 64.98771579936147
+    },
+    {
+      "zero_grad": 0.5621272139251232,
+      "forward": 15.600115992128849,
+      "loss": 0.12767082080245018,
+      "backward": 30.81542532891035,
+      "optimizer": 17.072435934096575,
+      "total": 64.4663623534143
+    },
+    {
+      "zero_grad": 0.582513865083456,
+      "forward": 15.623414888978004,
+      "loss": 0.12688804417848587,
+      "backward": 30.748866964131594,
+      "optimizer": 16.819173004478216,
+      "total": 64.18616604059935
+    },
+    {
+      "zero_grad": 0.5730157718062401,
+      "forward": 15.617263037711382,
+      "loss": 0.1285979524254799,
+      "backward": 30.830566305667162,
+      "optimizer": 17.109783831983805,
+      "total": 64.54642210155725
+    },
+    {
+      "zero_grad": 0.5752341821789742,
+      "forward": 15.593801625072956,
+      "loss": 0.13324012979865074,
+      "backward": 30.794468242675066,
+      "optimizer": 16.92582480609417,
+      "total": 64.29463298991323
+    },
+    {
+      "zero_grad": 0.5571600049734116,
+      "forward": 15.578666236251593,
+      "loss": 0.13907067477703094,
+      "backward": 30.833235010504723,
+      "optimizer": 16.83807000517845,
+      "total": 64.21920610591769
+    },
+    {
+      "zero_grad": 0.5425717681646347,
+      "forward": 15.573397278785706,
+      "loss": 0.1258249394595623,
+      "backward": 30.774392187595367,
+      "optimizer": 16.636286862194538,
+      "total": 63.92376683652401
+    },
+    {
+      "zero_grad": 0.5554868839681149,
+      "forward": 15.585638117045164,
+      "loss": 0.13145990669727325,
+      "backward": 30.73449106886983,
+      "optimizer": 16.850086860358715,
+      "total": 64.13725670427084
+    }
+  ],
+  "summary": {
+    "zero_grad": {
+      "mean_ms": 0.5673635751008987,
+      "std_ms": 0.012438208727025819,
+      "min_ms": 0.5425717681646347,
+      "max_ms": 0.5851550959050655
+    },
+    "forward": {
+      "mean_ms": 15.604346385225654,
+      "std_ms": 0.03653962975195019,
+      "min_ms": 15.573397278785706,
+      "max_ms": 15.703143086284399
+    },
+    "loss": {
+      "mean_ms": 0.13033379800617695,
+      "std_ms": 0.0037729460554781586,
+      "min_ms": 0.1258249394595623,
+      "max_ms": 0.13907067477703094
+    },
+    "backward": {
+      "mean_ms": 30.808397382497787,
+      "std_ms": 0.07300836092494858,
+      "min_ms": 30.73449106886983,
+      "max_ms": 31.00399812683463
+    },
+    "optimizer": {
+      "mean_ms": 16.9405919034034,
+      "std_ms": 0.2599646991928174,
+      "min_ms": 16.636286862194538,
+      "max_ms": 17.607415094971657
+    },
+    "total": {
+      "mean_ms": 64.33066381141543,
+      "std_ms": 0.2817002190492416,
+      "min_ms": 63.92376683652401,
+      "max_ms": 64.98771579936147
+    }
+  }
+}

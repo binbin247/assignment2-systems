@@ -8,6 +8,7 @@ import warnings
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
+import torch.cuda.nvtx as nvtx
 
 from cs336_basics.rotary_embedding import RotaryEmbedding
 
@@ -227,7 +228,9 @@ class TransformerBlock(nn.Module):
         """
         # Pre-norm attention and feed-forward sublayers with residual connections.
         x = x + self.attn(self.ln1(x))
-        return x + self.ffn(self.ln2(x))
+        with nvtx.range("ffn_forward"):
+            x = x + self.ffn(self.ln2(x))
+        return x
 
 
 class CausalMultiHeadSelfAttention(nn.Module):
@@ -298,12 +301,15 @@ class CausalMultiHeadSelfAttention(nn.Module):
             Q = self.positional_encoder(Q, token_positions)
             K = self.positional_encoder(K, token_positions)
 
-        # Shape: (..., num_heads, sequence_length, d_k)
-        attn_output = F.scaled_dot_product_attention(Q, K, V, dropout_p=0.0, is_causal=True)
+        with nvtx.range("sdpa_torch_forward"):
+            # Shape: (..., num_heads, sequence_length, d_k)
+
+            # attn_output = F.scaled_dot_product_attention(Q, K, V, dropout_p=0.0, is_causal=True)
+            attn_output = my_scaled_dot_product_attention(Q, K, V)
 
         # Concatenate the attention output from all heads.
         # (..., sequence_length, num_heads * d_v).
         attn_output = attn_output.transpose(-3, -2).flatten(-2).contiguous()
-
+        attn_output = self.output_proj(attn_output)
         # Apply the output projection
-        return self.output_proj(attn_output)
+        return attn_output

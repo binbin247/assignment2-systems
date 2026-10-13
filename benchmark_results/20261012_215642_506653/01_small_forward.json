@@ -1,0 +1,98 @@
+{
+  "status": "ok",
+  "config": {
+    "model_size": "small",
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "vocab_size": 10000,
+    "batch_size": 4,
+    "context_length": 512,
+    "rope_theta": 10000.0,
+    "mode": "forward",
+    "warmup_steps": 5,
+    "num_steps": 10,
+    "device": "cuda:0",
+    "dtype": "float32",
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "seed": 336,
+    "timing": "breakdown",
+    "output": "/data/private/niebinbin/test_and_study/cs336/assignment2-systems/benchmark_results/20261012_215642_506653/01_small_forward.json"
+  },
+  "model_config": {
+    "vocab_size": 10000,
+    "context_length": 512,
+    "d_model": 768,
+    "d_ff": 3072,
+    "num_layers": 12,
+    "num_heads": 12,
+    "rope_theta": 10000.0
+  },
+  "num_parameters": 128625408,
+  "environment": {
+    "torch_version": "2.14.0+cu130",
+    "cuda_version": "13.0",
+    "device_name": "NVIDIA H100 80GB HBM3",
+    "optimizer": null,
+    "float32_matmul_precision": "highest"
+  },
+  "std_definition": "population standard deviation (ddof=0)",
+  "measurements_ms": [
+    {
+      "forward": 15.175764448940754,
+      "total": 15.18360199406743
+    },
+    {
+      "forward": 15.158066991716623,
+      "total": 15.165628865361214
+    },
+    {
+      "forward": 15.13651804998517,
+      "total": 15.14387782663107
+    },
+    {
+      "forward": 15.13923890888691,
+      "total": 15.145041979849339
+    },
+    {
+      "forward": 15.146638732403517,
+      "total": 15.152886044234037
+    },
+    {
+      "forward": 15.125752426683903,
+      "total": 15.132872387766838
+    },
+    {
+      "forward": 15.170119237154722,
+      "total": 15.178002882748842
+    },
+    {
+      "forward": 15.172976069152355,
+      "total": 15.181135851889849
+    },
+    {
+      "forward": 15.205638948827982,
+      "total": 15.213319100439548
+    },
+    {
+      "forward": 15.178326983004808,
+      "total": 15.184692107141018
+    }
+  ],
+  "summary": {
+    "forward": {
+      "mean_ms": 15.160904079675674,
+      "std_ms": 0.02295102326429644,
+      "min_ms": 15.125752426683903,
+      "max_ms": 15.205638948827982
+    },
+    "total": {
+      "mean_ms": 15.168105904012918,
+      "std_ms": 0.023292313437591153,
+      "min_ms": 15.132872387766838,
+      "max_ms": 15.213319100439548
+    }
+  }
+}

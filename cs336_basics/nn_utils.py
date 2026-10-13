@@ -29,3 +29,26 @@ def clip_gradient(parameters, max_norm):
     clip_coef = min(1, max_norm / (norm + 1e-6))
     for g in grads:
         g *= clip_coef
+
+
+def my_scaled_dot_production_attention(
+    Q: torch.Tensor,
+    K: torch.Tensor,
+    V: torch.Tensor,
+    is_causal: bool = False,
+) -> torch.Tensor:
+    """Compute scaled dot-product attention using explicit PyTorch operations.
+    """
+    score = Q@K.transpose(-1,-2)/(Q.size(-1)**0.5)
+
+    if is_causal:
+        mask = torch.ones(
+            Q.size(-2), K.size(-2), dtype=torch.bool, device=Q.device
+        ).tril()
+        score = score.masked_fill(~mask, float("-inf"))
+
+    p = torch.nn.functional.softmax(
+        score, dim = -1
+    ) 
+
+    return p@V
